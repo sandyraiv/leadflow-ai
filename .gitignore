@@ -1,0 +1,14 @@
+﻿# Dependencies
+node_modules/
+frontend/node_modules/
+
+# Production build
+frontend/build/
+
+# Environment
+.env
+.env.local
+
+# Misc
+frontend.zip
+fix-check.py
