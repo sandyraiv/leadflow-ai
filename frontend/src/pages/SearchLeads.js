@@ -1,121 +1,148 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useAuth } from '../context/AuthContext';
-import axios from 'axios';
+import { useAuth } from "../context/AuthContext";
+import axios from "axios";
 import {
   Search,
-  MapPin,
   Filter,
   Download,
-  Star,
-  Phone,
-  Mail,
-  Globe,
   ChevronDown,
-  X,
-  Loader2
-} from 'lucide-react';
-import toast from 'react-hot-toast';
+  X
+} from "lucide-react";
+import toast from "react-hot-toast";
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL =
+  process.env.REACT_APP_API_URL ||
+  "http://localhost:5000/api";
 
 const CATEGORIES = [
-  'All',
-  'Restaurant',
-  'Hotel',
-  'Hospital',
-  'School',
-  'Real Estate',
-  'IT Services',
-  'Retail',
-  'Manufacturing',
-  'Consulting',
-  'Automotive',
-  'Healthcare',
-  'Education',
-  'Finance',
-  'Construction',
-  'Logistics'
+  "All",
+  "Restaurant",
+  "Hotel",
+  "Hospital",
+  "School",
+  "Real Estate",
+  "IT Services",
+  "Retail",
+  "Manufacturing",
+  "Consulting",
+  "Automotive",
+  "Healthcare",
+  "Education",
+  "Finance",
+  "Construction",
+  "Logistics"
 ];
 
 const CITIES = [
-  'All',
-  'Mumbai',
-  'Delhi',
-  'Bangalore',
-  'Hyderabad',
-  'Chennai',
-  'Kolkata',
-  'Pune',
-  'Ahmedabad',
-  'Jaipur',
-  'Lucknow',
-  'Surat'
+  "All",
+  "Mumbai",
+  "Delhi",
+  "Bangalore",
+  "Hyderabad",
+  "Chennai",
+  "Kolkata",
+  "Pune",
+  "Ahmedabad",
+  "Jaipur",
+  "Lucknow",
+  "Surat"
 ];
 
 const SearchLeads = () => {
   const { user, updateCredits } = useAuth() || {};
 
   const [leads, setLeads] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [selectedCity, setSelectedCity] = useState('All');
-  const [selectedArea, setSelectedArea] = useState('');
+  const [, setLoading] = useState(false);
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] =
+    useState("All");
+
+  const [selectedCity, setSelectedCity] =
+    useState("All");
+
+  const [selectedArea, setSelectedArea] =
+    useState("");
+
   const [minRating, setMinRating] = useState(0);
-  const [showFilters, setShowFilters] = useState(false);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [selectedLeads, setSelectedLeads] = useState(new Set());
 
-  const fetchLeads = useCallback(async (pageNum = 1) => {
-    setLoading(true);
+  const [showFilters, setShowFilters] =
+    useState(false);
 
-    try {
-      const params = new URLSearchParams();
+  const [, setPage] = useState(1);
 
-      params.append('page', pageNum);
-      params.append('limit', 20);
+  const [, setTotalPages] = useState(1);
 
-      if (searchTerm) {
-        params.append('search', searchTerm);
+  const [selectedLeads, setSelectedLeads] =
+    useState(new Set());
+
+  const fetchLeads = useCallback(
+    async (pageNum = 1) => {
+      setLoading(true);
+
+      try {
+        const params = new URLSearchParams();
+
+        params.append("page", pageNum);
+
+        params.append("limit", 20);
+
+        if (searchTerm) {
+          params.append("search", searchTerm);
+        }
+
+        if (selectedCategory !== "All") {
+          params.append(
+            "category",
+            selectedCategory
+          );
+        }
+
+        if (selectedCity !== "All") {
+          params.append("city", selectedCity);
+        }
+
+        if (selectedArea) {
+          params.append("area", selectedArea);
+        }
+
+        if (minRating > 0) {
+          params.append(
+            "minRating",
+            minRating
+          );
+        }
+
+        const res = await axios.get(
+          `${API_URL}/leads?${params.toString()}`
+        );
+
+        setLeads(res.data.leads || []);
+
+        setTotalPages(
+          res.data.totalPages || 1
+        );
+
+        setPage(
+          res.data.currentPage || 1
+        );
+
+      } catch (err) {
+        toast.error(
+          "Failed to fetch leads"
+        );
+      } finally {
+        setLoading(false);
       }
-
-      if (selectedCategory !== 'All') {
-        params.append('category', selectedCategory);
-      }
-
-      if (selectedCity !== 'All') {
-        params.append('city', selectedCity);
-      }
-
-      if (selectedArea) {
-        params.append('area', selectedArea);
-      }
-
-      if (minRating > 0) {
-        params.append('minRating', minRating);
-      }
-
-      const res = await axios.get(
-        `${API_URL}/leads?${params.toString()}`
-      );
-
-      setLeads(res.data.leads || []);
-      setTotalPages(res.data.totalPages || 1);
-      setPage(res.data.currentPage || 1);
-
-    } catch (err) {
-      toast.error('Failed to fetch leads');
-    } finally {
-      setLoading(false);
-    }
-  }, [
-    searchTerm,
-    selectedCategory,
-    selectedCity,
-    selectedArea,
-    minRating
-  ]);
+    },
+    [
+      searchTerm,
+      selectedCategory,
+      selectedCity,
+      selectedArea,
+      minRating
+    ]
+  );
 
   useEffect(() => {
     fetchLeads(1);
@@ -126,91 +153,107 @@ const SearchLeads = () => {
     fetchLeads(1);
   };
 
-  const toggleLeadSelection = (leadId) => {
-    const newSelected = new Set(selectedLeads);
-
-    if (newSelected.has(leadId)) {
-      newSelected.delete(leadId);
-    } else {
-      newSelected.add(leadId);
-    }
-
-    setSelectedLeads(newSelected);
-  };
-
   const downloadSelected = async () => {
     if (selectedLeads.size === 0) {
-      toast.error('Select at least one lead to download');
+      toast.error(
+        "Select at least one lead to download"
+      );
+
       return;
     }
 
     if (!user) {
-      toast.error('Please login to download leads');
+      toast.error(
+        "Please login to download leads"
+      );
+
       return;
     }
 
-    if ((user?.credits || 0) < selectedLeads.size) {
+    if (
+      (user?.credits || 0) <
+      selectedLeads.size
+    ) {
       toast.error(
-        `You need ${selectedLeads.size} credits. You have ${user?.credits || 0}.`
+        `You need ${selectedLeads.size} credits. You have ${
+          user?.credits || 0
+        }.`
       );
+
       return;
     }
 
     try {
-      const res = await axios.post(`${API_URL}/leads/download`, {
-        leadIds: Array.from(selectedLeads)
-      });
+      const res = await axios.post(
+        `${API_URL}/leads/download`,
+        {
+          leadIds: Array.from(
+            selectedLeads
+          )
+        }
+      );
 
       const headers = [
-        'Business Name',
-        'Category',
-        'City',
-        'Area',
-        'Phone',
-        'Email',
-        'Website',
-        'Rating',
-        'Address',
-        'Score'
+        "Business Name",
+        "Category",
+        "City",
+        "Area",
+        "Phone",
+        "Email",
+        "Website",
+        "Rating",
+        "Address",
+        "Score"
       ];
 
-      const rows = res.data.leads.map((l) => [
-        l.name,
-        l.category,
-        l.city,
-        l.area,
-        l.phone || '',
-        l.email || '',
-        l.website || '',
-        l.rating || '',
-        l.address || '',
-        l.score || ''
-      ]);
+      const rows = res.data.leads.map(
+        (l) => [
+          l.name,
+          l.category,
+          l.city,
+          l.area,
+          l.phone || "",
+          l.email || "",
+          l.website || "",
+          l.rating || "",
+          l.address || "",
+          l.score || ""
+        ]
+      );
 
       const csv = [headers, ...rows]
         .map((row) =>
-          row.map((cell) => `"${cell}"`).join(',')
+          row
+            .map((cell) => `"${cell}"`)
+            .join(",")
         )
-        .join('\n');
+        .join("\n");
 
       const blob = new Blob([csv], {
-        type: 'text/csv'
+        type: "text/csv"
       });
 
-      const url = window.URL.createObjectURL(blob);
+      const url =
+        window.URL.createObjectURL(blob);
 
-      const a = document.createElement('a');
+      const a =
+        document.createElement("a");
+
       a.href = url;
 
       a.download = `leads-export-${
-        new Date().toISOString().split('T')[0]
+        new Date()
+          .toISOString()
+          .split("T")[0]
       }.csv`;
 
       a.click();
 
       window.URL.revokeObjectURL(url);
 
-      updateCredits?.(res.data.remainingCredits);
+      updateCredits?.(
+        res.data.remainingCredits
+      );
 
       setSelectedLeads(new Set());
 
@@ -220,17 +263,10 @@ const SearchLeads = () => {
 
     } catch (err) {
       toast.error(
-        err.response?.data?.message || 'Download failed'
+        err.response?.data?.message ||
+          "Download failed"
       );
     }
-  };
-
-  const getScoreColor = (score) => {
-    if (score >= 80) return 'text-green-400';
-    if (score >= 60) return 'text-blue-400';
-    if (score >= 40) return 'text-amber-400';
-
-    return 'text-slate-400';
   };
 
   return (
