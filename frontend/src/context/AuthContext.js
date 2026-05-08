@@ -10,27 +10,24 @@ export const AuthProvider = ({ children }) => {
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      fetchProfile();
-    } else {
+    const initAuth = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        try {
+          const res = await axios.get(`${API_URL}/auth/profile`);
+          setUser(res.data.user);
+        } catch (err) {
+          console.error('Auth init error:', err.message);
+          localStorage.removeItem('token');
+          delete axios.defaults.headers.common['Authorization'];
+        }
+      }
       setLoading(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    };
 
-  const fetchProfile = async () => {
-    try {
-      const res = await axios.get(`${API_URL}/auth/profile`);
-      setUser(res.data.user);
-    } catch (err) {
-      localStorage.removeItem('token');
-      delete axios.defaults.headers.common['Authorization'];
-    } finally {
-      setLoading(false);
-    }
-  };
+    initAuth();
+  }, []);
 
   const login = async (email, password) => {
     const res = await axios.post(`${API_URL}/auth/login`, { email, password });
