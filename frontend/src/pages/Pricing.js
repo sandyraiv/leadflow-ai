@@ -54,17 +54,14 @@ const plans = [
 ];
 
 const Pricing = () => {
-  const { user } = useAuth();
-  const [selectedPlan, setSelectedPlan] = useState(null);
+  const { user } = useAuth() || {};
 
   const handlePurchase = (plan) => {
     if (!user) {
       toast.error('Please login to purchase credits');
       return;
     }
-    // In production, integrate Razorpay here
     toast.success(`Selected ${plan.name} plan. Redirecting to payment...`);
-    // window.location.href = `/payment?plan=${plan.name}&credits=${plan.credits}`;
   };
 
   return (
@@ -143,7 +140,6 @@ const Pricing = () => {
         ))}
       </div>
 
-      {/* Custom Plan */}
       <div className="mt-12 glass-card rounded-2xl p-8 max-w-3xl mx-auto text-center">
         <h3 className="text-xl font-bold mb-2">Need a Custom Plan?</h3>
         <p className="text-slate-400 mb-6">

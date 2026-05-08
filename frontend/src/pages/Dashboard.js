@@ -11,7 +11,7 @@ import toast from 'react-hot-toast';
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user } = useAuth() || {};
   const [stats, setStats] = useState({ totalLeads: 0, downloads: 0, searches: 0 });
   const [recentLeads, setRecentLeads] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -28,7 +28,7 @@ const Dashboard = () => {
         axios.get(`${API_URL}/leads/recent?limit=5`)
       ]);
       setStats(statsRes.data);
-      setRecentLeads(leadsRes.data.leads);
+      setRecentLeads(leadsRes.data.leads || []);
     } catch (err) {
       toast.error('Failed to load dashboard data');
     } finally {
@@ -55,8 +55,8 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center pt-16">
-        <div className="loading-spinner w-8 h-8" />
+      <div className="min-h-screen flex items-center justify-center pt-16 bg-slate-900">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
       </div>
     );
   }
@@ -65,7 +65,7 @@ const Dashboard = () => {
     <div className="pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
-        <p className="text-slate-400">Welcome back, {user?.name}</p>
+        <p className="text-slate-400">Welcome back, {user?.name || 'Guest'}</p>
       </div>
 
       {/* Stats Cards */}
@@ -77,7 +77,7 @@ const Dashboard = () => {
             </div>
             <span className="text-sm text-slate-500">Total</span>
           </div>
-          <p className="text-3xl font-bold">{stats.totalLeads}</p>
+          <p className="text-3xl font-bold">{stats.totalLeads || 0}</p>
           <p className="text-sm text-slate-400 mt-1">Leads Available</p>
         </div>
 
@@ -88,7 +88,7 @@ const Dashboard = () => {
             </div>
             <span className="text-sm text-slate-500">This Month</span>
           </div>
-          <p className="text-3xl font-bold">{stats.downloads}</p>
+          <p className="text-3xl font-bold">{stats.downloads || 0}</p>
           <p className="text-sm text-slate-400 mt-1">Downloads</p>
         </div>
 
@@ -148,7 +148,7 @@ const Dashboard = () => {
               </thead>
               <tbody className="divide-y divide-slate-700/50">
                 {recentLeads.map((lead) => (
-                  <tr key={lead._id} className="hover:bg-slate-800/30 transition-colors">
+                  <tr key={lead._id || lead.id} className="hover:bg-slate-800/30 transition-colors">
                     <td className="px-6 py-4">
                       <div>
                         <p className="font-medium text-white">{lead.name}</p>

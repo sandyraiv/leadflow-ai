@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Zap, Menu, X, CreditCard, User, LogOut, Shield } from 'lucide-react';
 
 const Navbar = () => {
-  const { user, logout } = useAuth();
+  const { user, logout } = useAuth() || {};
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -38,7 +38,7 @@ const Navbar = () => {
               <>
                 <div className="flex items-center space-x-2 bg-slate-800/50 px-3 py-1.5 rounded-full">
                   <CreditCard className="w-4 h-4 text-green-400" />
-                  <span className="text-sm font-medium text-green-400">{user.credits} credits</span>
+                  <span className="text-sm font-medium text-green-400">{user.credits || 0} credits</span>
                 </div>
                 {user.role === 'admin' && (
                   <Link to="/admin" className="text-amber-400 hover:text-amber-300">
@@ -48,7 +48,7 @@ const Navbar = () => {
                 <div className="relative group">
                   <button className="flex items-center space-x-2 text-slate-300 hover:text-white">
                     <User className="w-5 h-5" />
-                    <span className="text-sm">{user.name}</span>
+                    <span className="text-sm">{user.name || 'User'}</span>
                   </button>
                 </div>
                 <button onClick={handleLogout} className="text-slate-400 hover:text-red-400 transition-colors">

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import { 
-  Search, MapPin, Building2, Filter, Download, Star, 
+  Search, MapPin, Filter, Download, Star, 
   Phone, Mail, Globe, ChevronDown, X, Loader2 
 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -21,7 +21,7 @@ const CITIES = [
 ];
 
 const SearchLeads = () => {
-  const { user, updateCredits } = useAuth();
+  const { user, updateCredits } = useAuth() || {};
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -47,9 +47,9 @@ const SearchLeads = () => {
       if (minRating > 0) params.append('minRating', minRating);
 
       const res = await axios.get(`${API_URL}/leads?${params.toString()}`);
-      setLeads(res.data.leads);
-      setTotalPages(res.data.totalPages);
-      setPage(res.data.currentPage);
+      setLeads(res.data.leads || []);
+      setTotalPages(res.data.totalPages || 1);
+      setPage(res.data.currentPage || 1);
     } catch (err) {
       toast.error('Failed to fetch leads');
     } finally {
@@ -57,6 +57,7 @@ const SearchLeads = () => {
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchLeads(1);
   }, [selectedCategory, selectedCity, selectedArea, minRating]);
@@ -81,8 +82,12 @@ const SearchLeads = () => {
       toast.error('Select at least one lead to download');
       return;
     }
-    if (user.credits < selectedLeads.size) {
-      toast.error(`You need ${selectedLeads.size} credits. You have ${user.credits}.`);
+    if (!user) {
+      toast.error('Please login to download leads');
+      return;
+    }
+    if ((user?.credits || 0) < selectedLeads.size) {
+      toast.error(`You need ${selectedLeads.size} credits. You have ${user?.credits || 0}.`);
       return;
     }
 
@@ -107,7 +112,7 @@ const SearchLeads = () => {
       a.click();
       window.URL.revokeObjectURL(url);
 
-      updateCredits(res.data.remainingCredits);
+      updateCredits?.(res.data.remainingCredits);
       setSelectedLeads(new Set());
       toast.success(`Downloaded ${res.data.leads.length} leads!`);
     } catch (err) {
@@ -247,7 +252,7 @@ const SearchLeads = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {leads.map((lead) => (
             <div 
-              key={lead._id}
+              key={lead._id || lead.id}
               onClick={() => toggleLeadSelection(lead._id)}
               className={`glass-card rounded-xl p-5 cursor-pointer transition-all duration-200 ${
                 selectedLeads.has(lead._id) 
