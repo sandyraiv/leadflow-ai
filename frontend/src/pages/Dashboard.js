@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { 
-  CreditCard, Download, Search, TrendingUp, Calendar, 
+  CreditCard, Download, Search, 
   MapPin, Building2, Phone, Mail, Star, ArrowRight 
 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -18,6 +18,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchDashboardData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchDashboardData = async () => {
