@@ -9,7 +9,7 @@ const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const { register } = useAuth();
+  const { register } = useAuth() || {};
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -93,7 +93,7 @@ const Register = () => {
             className="w-full btn-primary py-3 rounded-xl text-white font-semibold flex items-center justify-center space-x-2 disabled:opacity-50"
           >
             {loading ? (
-              <div className="loading-spinner" />
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
             ) : (
               <>
                 <span>Create Account</span>
