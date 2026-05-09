@@ -48,7 +48,7 @@ const Home = () => {
 
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
             Find Your Next <br />
-            <span className="gradient-text">High-Value Customer</span>
+            <span className="gradient-text">High-Value Customer With Sandy's LeadFlow</span>
           </h1>
 
           <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10">
